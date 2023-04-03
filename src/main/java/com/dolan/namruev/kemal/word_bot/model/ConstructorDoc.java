@@ -8,7 +8,7 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table (name = "constructor_doc_table")
+@Table(name = "constructor_doc_table")
 @Setter
 @Getter
 @NoArgsConstructor
@@ -16,31 +16,31 @@ public class ConstructorDoc {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @Column(name = "chatId")
+
     private long chatId;
-    @Column(name = "textCourtName")
+
     private String textCourtName;
-    @Column(name = "textCourtAddress")
+
     private String textCourtAddress;
-    @Column(name = "applicantName")
+
     private String applicantName;
-    @Column(name = "applicantAddress")
+
     private String applicantAddress;
-    @Column(name = "innNumberApplicant")
+
     private String innNumberApplicant;
-    @Column(name = "defendantName")
+
     private String defendantName;
-    @Column(name = "innNumberDefendant")
+
     private String innNumberDefendant;
-    @Column(name = "defendantAddress")
+
     private String defendantAddress;
-    @Column(name = "caseNumber")
+
     private String caseNumber;
-    @Column(name = "dateCourt")
+
     private String dateCourt;
-    @Column(name = "timeCourt")
+
     private String timeCourt;
-    @Column(name = "reason_1")
+
     private String reason_1;
 
     @Override

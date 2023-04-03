@@ -2,7 +2,7 @@
 
 -- changeset pecheneg:1
 
-CREATE TABLE constructor_doc_table
+CREATE TABLE IF NOT EXISTS constructor_doc_table
 (
     id                 SERIAL PRIMARY KEY,
     idChat             BIGINT,
