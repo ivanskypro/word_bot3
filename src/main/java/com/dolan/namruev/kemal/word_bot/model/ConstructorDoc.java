@@ -15,41 +15,27 @@ import java.util.Objects;
 public class ConstructorDoc {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
     private long chatId;
-
     private String textCourtName;
-
     private String textCourtAddress;
-
     private String applicantName;
-
     private String applicantAddress;
-
     private String innNumberApplicant;
-
     private String defendantName;
-
-    private String innNumberDefendant;
-
     private String defendantAddress;
-
+    private String innNumberDefendant;
     private String caseNumber;
-
     private String dateCourt;
-
     private String timeCourt;
-
     private String reason_1;
+    private ConstructorDocState state;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ConstructorDoc that = (ConstructorDoc) o;
-        return id == that.id
-                && Objects.equals(chatId, that.chatId)
+        return chatId == that.chatId
                 && Objects.equals(textCourtName, that.textCourtName)
                 && Objects.equals(textCourtAddress, that.textCourtAddress)
                 && Objects.equals(applicantName, that.applicantName)
@@ -66,8 +52,7 @@ public class ConstructorDoc {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id,
-                chatId,
+        return Objects.hash(chatId,
                 textCourtName,
                 textCourtAddress,
                 applicantName,
@@ -85,8 +70,7 @@ public class ConstructorDoc {
     @Override
     public String toString() {
         return "ConstructorDoc{" +
-                "id=" + id +
-                ", chatId=" + chatId +
+                "chatId=" + chatId +
                 ", textCourtName='" + textCourtName + '\'' +
                 ", textCourtAddress='" + textCourtAddress + '\'' +
                 ", applicantName='" + applicantName + '\'' +
@@ -102,3 +86,4 @@ public class ConstructorDoc {
                 '}';
     }
 }
+

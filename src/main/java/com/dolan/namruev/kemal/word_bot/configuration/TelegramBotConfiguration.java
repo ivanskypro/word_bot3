@@ -1,5 +1,7 @@
 package com.dolan.namruev.kemal.word_bot.configuration;
 
+import com.dolan.namruev.kemal.word_bot.listener.MessageHandler;
+import com.dolan.namruev.kemal.word_bot.listener.TelegramBotUpdatesListener;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.DeleteMyCommands;
 import org.springframework.beans.factory.annotation.Value;

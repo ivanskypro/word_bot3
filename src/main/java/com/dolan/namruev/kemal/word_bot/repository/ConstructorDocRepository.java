@@ -8,7 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface ConstructorDocRepository extends JpaRepository <ConstructorDoc, Long> {
-    ConstructorDoc existsConstructorDocByChatId(Long chatId);
-
-    Optional<ConstructorDoc> findByTextCourtName(String courtName);
+    ConstructorDoc findByChatId(long chatId);
 }

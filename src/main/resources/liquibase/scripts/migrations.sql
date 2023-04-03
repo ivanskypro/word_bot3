@@ -4,8 +4,7 @@
 
 CREATE TABLE IF NOT EXISTS constructor_doc_table
 (
-    id                 SERIAL PRIMARY KEY,
-    idChat             BIGINT,
+    idChat             SERIAL PRIMARY KEY,
     textCourtName      VARCHAR(255),
     textCourtAddress   VARCHAR(255),
     applicantName      VARCHAR(255),
