@@ -1,8 +1,7 @@
 package com.dolan.namruev.kemal.word_bot.model;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -13,6 +12,7 @@ import java.util.Objects;
 @Getter
 @NoArgsConstructor
 public class ConstructorDoc {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long chatId;
@@ -29,6 +29,8 @@ public class ConstructorDoc {
     private String timeCourt;
     private String reason_1;
     private ConstructorDocState state;
+    private String option;
+
 
     @Override
     public boolean equals(Object o) {

@@ -18,9 +18,13 @@ public class ConstructorDocServiceImpl implements ConstructorDocService {
     }
 
     @Override
-    public ConstructorDoc saveResponse(ConstructorDoc constructorDoc){
+    public void saveResponse(ConstructorDoc constructorDoc){
         ConstructorDoc saveResponse = constructorDocRepository.save(constructorDoc);
         logger.info("Response successfully saved " + saveResponse);
-        return saveResponse;
+    }
+    @Override
+    public void reset(long chatId){
+        constructorDocRepository.deleteById(chatId);
+        logger.info("Response successfully deleted");
     }
 }

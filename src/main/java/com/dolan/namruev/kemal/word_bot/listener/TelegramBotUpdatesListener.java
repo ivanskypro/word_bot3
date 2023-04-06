@@ -1,11 +1,10 @@
 package com.dolan.namruev.kemal.word_bot.listener;
 
+import com.dolan.namruev.kemal.word_bot.service.ServiceImpl.MessageHandlerImpl;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +17,10 @@ import java.util.List;
 public class TelegramBotUpdatesListener implements UpdatesListener {
     private static final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
     private final TelegramBot bot;
-    private final MessageHandler messageHandler;
+    private final MessageHandlerImpl messageHandler;
 
     @Autowired
-    public TelegramBotUpdatesListener(TelegramBot bot, MessageHandler messageHandler) {
+    public TelegramBotUpdatesListener(TelegramBot bot, MessageHandlerImpl messageHandler) {
         this.bot = bot;
         this.messageHandler = messageHandler;
     }
@@ -36,13 +35,12 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * @param updates used for receiving and checking different types of updates
      * @return confirmed all updates
      */
-
     @Override
     public int process(List<Update> updates) {
         updates.forEach(update -> {
             logger.info("Processing update: {}", update);
             Message message = update.message();
-            // check if the update has a message and message has text
+            // Проверка, есть ли в обновлении сообщение и есть ли у сообщения текст.
             if (message != null) {
                 messageHandler.handle(message);
             }
