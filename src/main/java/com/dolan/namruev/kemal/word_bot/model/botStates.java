@@ -1,6 +1,6 @@
 package com.dolan.namruev.kemal.word_bot.model;
 
-public enum ConstructorDocState {
+public enum botStates {
     STATE_START,
     ASK_COURT_NAME,
     ASK_COURT_ADDRESS,
@@ -15,6 +15,7 @@ public enum ConstructorDocState {
     ASK_TIME_COURT,
     ASK_REASON_ONE,
     COMPLETE,
+    SEND_DOCUMENT,
     WAITING_OPTION,
     STATE_CANCELLED
 }
