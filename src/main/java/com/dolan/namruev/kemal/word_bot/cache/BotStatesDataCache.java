@@ -4,13 +4,13 @@ import com.dolan.namruev.kemal.word_bot.model.LawDocMaker;
 import com.dolan.namruev.kemal.word_bot.model.botStates;
 
 public interface BotStatesDataCache {
-    void setCurrentConstructorDocState(long chatId, botStates botState);
+    void setCurrentBotState(Long chatId, botStates botState);
 
-    botStates getConstructorDocState(long chatId);
+    botStates getBotState(Long chatId);
 
-    LawDocMaker getConstructorDocData(long chatId);
+    LawDocMaker getDataCache(Long chatId);
 
-    void saveConstructorDocData(long chatId, LawDocMaker lawDocMaker);
+    void saveDataCache(Long chatId, LawDocMaker lawDocMaker);
 
-    void clearConstructorDocState(long chatId);
+    void clearBotState(Long chatId);
 }

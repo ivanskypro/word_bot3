@@ -5,6 +5,7 @@ import com.dolan.namruev.kemal.word_bot.constants.Constants;
 import com.dolan.namruev.kemal.word_bot.model.LawDocMaker;
 import com.dolan.namruev.kemal.word_bot.model.botStates;
 import com.dolan.namruev.kemal.word_bot.builders.KeyboardBuilder;
+import com.dolan.namruev.kemal.word_bot.repository.LawDocMakerRepository;
 import com.dolan.namruev.kemal.word_bot.service.ServiceImpl.LawDocMakerServiceImpl;
 import com.dolan.namruev.kemal.word_bot.builders.MessageBuilder;
 import org.springframework.stereotype.Component;
@@ -18,12 +19,14 @@ public class BotStateHandler {
     private final BotStatesDataCache cacheState;
     private final MessageBuilder messageBuilder;
     private final KeyboardBuilder keyboardBuilder;
+    private final LawDocMakerRepository repository;
 
-    public BotStateHandler(LawDocMakerServiceImpl service, BotStatesDataCache cacheState, MessageBuilder messageBuilder, KeyboardBuilder keyboardBuilder) {
+    public BotStateHandler(LawDocMakerServiceImpl service, BotStatesDataCache cacheState, MessageBuilder messageBuilder, KeyboardBuilder keyboardBuilder, LawDocMakerRepository repository) {
         this.service = service;
         this.cacheState = cacheState;
         this.messageBuilder = messageBuilder;
         this.keyboardBuilder = keyboardBuilder;
+        this.repository = repository;
     }
 
     public void handleBotState(Long chatId, LawDocMaker lawDocMaker, String messageText, botStates currentState) {
@@ -47,7 +50,7 @@ public class BotStateHandler {
             default -> currentState;
         };
         service.saveResponse(lawDocMaker);
-        cacheState.setCurrentConstructorDocState(chatId, newState);
+        cacheState.setCurrentBotState(chatId, newState);
     }
 
     private botStates handleStartState(Long chatId) {
