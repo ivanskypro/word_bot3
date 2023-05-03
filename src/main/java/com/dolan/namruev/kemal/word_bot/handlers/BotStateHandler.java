@@ -1,14 +1,16 @@
 package com.dolan.namruev.kemal.word_bot.handlers;
 
+import com.dolan.namruev.kemal.word_bot.builders.KeyboardBuilder;
+import com.dolan.namruev.kemal.word_bot.builders.LawDocBuilder;
+import com.dolan.namruev.kemal.word_bot.builders.MessageBuilder;
 import com.dolan.namruev.kemal.word_bot.cache.BotStatesDataCache;
 import com.dolan.namruev.kemal.word_bot.constants.Constants;
 import com.dolan.namruev.kemal.word_bot.model.LawDocMaker;
 import com.dolan.namruev.kemal.word_bot.model.botStates;
-import com.dolan.namruev.kemal.word_bot.builders.KeyboardBuilder;
-import com.dolan.namruev.kemal.word_bot.repository.LawDocMakerRepository;
 import com.dolan.namruev.kemal.word_bot.service.ServiceImpl.LawDocMakerServiceImpl;
-import com.dolan.namruev.kemal.word_bot.builders.MessageBuilder;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
 
 import static com.dolan.namruev.kemal.word_bot.builders.KeyboardBuilder.cancel;
 import static com.dolan.namruev.kemal.word_bot.builders.KeyboardBuilder.chooseOption;
@@ -19,14 +21,17 @@ public class BotStateHandler {
     private final BotStatesDataCache cacheState;
     private final MessageBuilder messageBuilder;
     private final KeyboardBuilder keyboardBuilder;
-    private final LawDocMakerRepository repository;
+    private final LawDocBuilder lawDocBuilder;
 
-    public BotStateHandler(LawDocMakerServiceImpl service, BotStatesDataCache cacheState, MessageBuilder messageBuilder, KeyboardBuilder keyboardBuilder, LawDocMakerRepository repository) {
+    public BotStateHandler(LawDocMakerServiceImpl service,
+                           BotStatesDataCache cacheState,
+                           MessageBuilder messageBuilder,
+                           KeyboardBuilder keyboardBuilder, LawDocBuilder lawDocBuilder) {
         this.service = service;
         this.cacheState = cacheState;
         this.messageBuilder = messageBuilder;
         this.keyboardBuilder = keyboardBuilder;
-        this.repository = repository;
+        this.lawDocBuilder = lawDocBuilder;
     }
 
     public void handleBotState(Long chatId, LawDocMaker lawDocMaker, String messageText, botStates currentState) {
@@ -45,7 +50,6 @@ public class BotStateHandler {
             case ASK_DATE_COURT -> handleAskDateCourtState(chatId, lawDocMaker, messageText);
             case ASK_TIME_COURT -> handleAskTimeCourtState(chatId, lawDocMaker, messageText);
             case ASK_REASON_ONE -> handleAskReasonOneState(chatId, lawDocMaker, messageText);
-            case COMPLETE -> handleMakeDocumentState();
             case STATE_CANCELLED -> handleCancelledState(chatId);
             default -> currentState;
         };
@@ -53,12 +57,12 @@ public class BotStateHandler {
         cacheState.setCurrentBotState(chatId, newState);
     }
 
-    private botStates handleStartState(Long chatId) {
+    botStates handleStartState(Long chatId) {
         messageBuilder.sendMessage(chatId, Constants.GREETINGS, chooseOption());
         return botStates.WAITING_OPTION;
     }
 
-    private botStates handleCancelledState(Long chatId) {
+    botStates handleCancelledState(Long chatId) {
         messageBuilder.sendMessage(chatId, Constants.CHOOSE_OPTION, chooseOption());
         return botStates.WAITING_OPTION;
     }
@@ -88,7 +92,7 @@ public class BotStateHandler {
 
     private botStates handleAskCourtNameState(Long chatId, LawDocMaker lawDocMaker, String text) {
         lawDocMaker.setTextCourtName(text);
-        messageBuilder.sendMessage(chatId, "Введите адрес суда", cancel());
+        messageBuilder.sendMessage(chatId, "Введите адрес суда", keyboardBuilder.cancelButton());
         return botStates.ASK_COURT_ADDRESS;
     }
 
@@ -180,10 +184,13 @@ public class BotStateHandler {
         lawDocMaker.setReason_1(text);
         messageBuilder.sendMessage(chatId, "Мы заполнили Ваше заявление, сейчас произойдет магия \uD83D\uDCAB" +
                 " и бот пришлет документ", cancel());
-        return botStates.COMPLETE;
-    }
-
-    private botStates handleMakeDocumentState() {
-        return botStates.SEND_DOCUMENT; // тут должна быть реализация создания документа из шаблона
+        try {
+            lawDocBuilder.generateDocument(lawDocMaker);
+            messageBuilder.sendDocument(chatId,lawDocMaker);
+            return botStates.COMPLETE;
+        } catch (IOException e) {
+            messageBuilder.sendMessage(chatId, "Произошла ошибка при генерации документа", cancel());
+            return botStates.STATE_START;
+        }
     }
 }

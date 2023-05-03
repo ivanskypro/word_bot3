@@ -5,11 +5,18 @@ import com.dolan.namruev.kemal.word_bot.constants.Constants;
 import com.dolan.namruev.kemal.word_bot.model.LawDocMaker;
 import com.dolan.namruev.kemal.word_bot.model.botStates;
 import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.model.File;
 import com.pengrad.telegrambot.model.Message;
+import com.pengrad.telegrambot.model.PhotoSize;
+import com.pengrad.telegrambot.request.GetFile;
 import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.response.GetFileResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Comparator;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -46,5 +53,16 @@ public class MessageHandler {
         } else {
             botStateHandler.handleBotState(chatId, currentDataCache, text, currentState);
         }
+    }
+    private File getFile(Message inputMessage) {
+        List<PhotoSize> photos = List.of(inputMessage.photo());
+        PhotoSize photo = photos.stream()
+                .max(Comparator.comparing(PhotoSize::fileSize)).orElse(null);
+        GetFile request = null;
+        if (photo != null) {
+            request = new GetFile(photo.fileId());
+        }
+        GetFileResponse getFileResponse = bot.execute(request);
+        return getFileResponse.file();
     }
 }

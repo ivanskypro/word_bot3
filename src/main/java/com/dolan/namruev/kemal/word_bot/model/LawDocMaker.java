@@ -1,5 +1,6 @@
 package com.dolan.namruev.kemal.word_bot.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -27,8 +28,12 @@ public class LawDocMaker {
     private String dateCourt;
     private String timeCourt;
     private String reason_1;
-    private botStates state;
     private String option;
+    private String filePath;
+    private Integer fileSize;
+    private botStates botStates;
+    @Lob
+    private byte[] image;
 
 
     @Override
