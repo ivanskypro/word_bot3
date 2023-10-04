@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-import static com.dolan.namruev.kemal.word_bot.builders.KeyboardBuilder.cancel;
 import static com.dolan.namruev.kemal.word_bot.builders.KeyboardBuilder.chooseOption;
 
 @Component
@@ -34,10 +33,18 @@ public class BotStateHandler {
         this.lawDocBuilder = lawDocBuilder;
     }
 
-    public void handleBotState(Long chatId, LawDocMaker lawDocMaker, String messageText, botStates currentState) {
+    public void handleInitialStates(Long chatId, LawDocMaker lawDocMaker, String messageText, botStates currentState) {
         botStates newState = switch (currentState) {
             case STATE_START -> handleStartState(chatId);
             case WAITING_OPTION -> handleWaitingOptionState(chatId, lawDocMaker, messageText);
+            case STATE_CANCELLED -> handleCancelledState(chatId);
+            default -> currentState;
+        };
+        service.saveResponse(lawDocMaker);
+        cacheState.setCurrentBotState(chatId, newState);
+    }
+    public void handleStatesGenerateDocument(Long chatId, LawDocMaker lawDocMaker, String messageText, botStates currentState) {
+        botStates newState = switch (currentState) {
             case ASK_COURT_NAME -> handleAskCourtNameState(chatId, lawDocMaker, messageText);
             case ASK_COURT_ADDRESS -> handleAskCourtAddressState(chatId, lawDocMaker, messageText);
             case ASK_APPLICANT_NAME -> handleAskApplicantNameState(chatId, lawDocMaker, messageText);
@@ -50,7 +57,6 @@ public class BotStateHandler {
             case ASK_DATE_COURT -> handleAskDateCourtState(chatId, lawDocMaker, messageText);
             case ASK_TIME_COURT -> handleAskTimeCourtState(chatId, lawDocMaker, messageText);
             case ASK_REASON_ONE -> handleAskReasonOneState(chatId, lawDocMaker, messageText);
-            case STATE_CANCELLED -> handleCancelledState(chatId);
             default -> currentState;
         };
         service.saveResponse(lawDocMaker);
@@ -75,13 +81,13 @@ public class BotStateHandler {
                 lawDocMaker.setOption(Constants.ON_ADJOURNMENT);
                 messageBuilder.sendMessage(chatId, "Начинаем заполнять ходатайство об отложении судебного заседания!\n" +
                         "\nПожалуйста введите суд", keyboardBuilder.removeOptionsButton());
-                return botStates.ASK_COURT_NAME;
+                return botStates.SELECTED_ON_ADJOURNMENT;
             }
             case Constants.FAMILIARIZATION -> {
                 lawDocMaker.setOption(Constants.FAMILIARIZATION);
                 messageBuilder.sendMessage(chatId, "Начинаем заполнять ходатайство об ознакомлении!\n" +
                         "\nПожалуйста введите суд", keyboardBuilder.removeOptionsButton());
-                return botStates.ASK_COURT_NAME;
+                return botStates.SELECTED_FAMILIARIZATION;
             }
             default -> {
                 messageBuilder.sendMessage(chatId, "Пожалуйста, выберите вариант из списка", chooseOption());
@@ -92,7 +98,7 @@ public class BotStateHandler {
 
     private botStates handleAskCourtNameState(Long chatId, LawDocMaker lawDocMaker, String text) {
         lawDocMaker.setTextCourtName(text);
-        messageBuilder.sendMessage(chatId, "Введите адрес суда", keyboardBuilder.cancelButton());
+        messageBuilder.sendMessage(chatId, "Введите адрес суда");
         return botStates.ASK_COURT_ADDRESS;
     }
 
@@ -100,7 +106,7 @@ public class BotStateHandler {
                                                  LawDocMaker lawDocMaker,
                                                  String text) {
         lawDocMaker.setTextCourtAddress(text);
-        messageBuilder.sendMessage(chatId, "Введите Истца", cancel());
+        messageBuilder.sendMessage(chatId, "Введите Истца");
         return botStates.ASK_APPLICANT_NAME;
     }
 
@@ -108,7 +114,7 @@ public class BotStateHandler {
                                                   LawDocMaker lawDocMaker,
                                                   String text) {
         lawDocMaker.setApplicantName(text);
-        messageBuilder.sendMessage(chatId, "Введите адрес Истца", cancel());
+        messageBuilder.sendMessage(chatId, "Введите адрес Истца");
         return botStates.ASK_APPLICANT_ADDRESS;
     }
 
@@ -116,7 +122,7 @@ public class BotStateHandler {
                                                      LawDocMaker lawDocMaker,
                                                      String text) {
         lawDocMaker.setApplicantAddress(text);
-        messageBuilder.sendMessage(chatId, "Введите ИНН Истца", cancel());
+        messageBuilder.sendMessage(chatId, "Введите ИНН Истца");
         return botStates.ASK_INN_APPLICANT;
     }
 
@@ -124,7 +130,7 @@ public class BotStateHandler {
                                                  LawDocMaker lawDocMaker,
                                                  String text) {
         lawDocMaker.setInnNumberApplicant(text);
-        messageBuilder.sendMessage(chatId, "Введите Ответчика", cancel());
+        messageBuilder.sendMessage(chatId, "Введите Ответчика");
         return botStates.ASK_DEFENDANT_NAME;
     }
 
@@ -132,7 +138,7 @@ public class BotStateHandler {
                                                   LawDocMaker lawDocMaker,
                                                   String text) {
         lawDocMaker.setDefendantName(text);
-        messageBuilder.sendMessage(chatId, "Введите адрес Ответчика", cancel());
+        messageBuilder.sendMessage(chatId, "Введите адрес Ответчика");
         return botStates.ASK_DEFENDANT_ADDRESS;
     }
 
@@ -140,7 +146,7 @@ public class BotStateHandler {
                                                      LawDocMaker lawDocMaker,
                                                      String text) {
         lawDocMaker.setDefendantAddress(text);
-        messageBuilder.sendMessage(chatId, "Введите ИНН Ответчика", cancel());
+        messageBuilder.sendMessage(chatId, "Введите ИНН Ответчика");
         return botStates.ASK_INN_DEFENDANT;
     }
 
@@ -148,17 +154,23 @@ public class BotStateHandler {
                                                  LawDocMaker lawDocMaker,
                                                  String text) {
         lawDocMaker.setInnNumberDefendant(text);
-        messageBuilder.sendMessage(chatId, "Введите номер дела", cancel());
-        return botStates.ASK_CASE_NUMBER;
+            messageBuilder.sendMessage(chatId, "Введите номер дела");
+            return botStates.ASK_CASE_NUMBER;
     }
 
     private botStates handleAskCaseNumberState(Long chatId,
                                                LawDocMaker lawDocMaker,
                                                String text) {
         lawDocMaker.setCaseNumber(text);
+        if (lawDocMaker.getOption().equals(Constants.ON_ADJOURNMENT)){
         messageBuilder.sendMessage(chatId, "Введите дату когда назначено" +
-                " Ваше судебное заседание ", cancel());
+                " Ваше судебное заседание ");
         return botStates.ASK_DATE_COURT;
+        }else {
+            messageBuilder.sendMessage(chatId, "Мы заполнили Ваше заявление, сейчас произойдет магия \uD83D\uDCAB" +
+                    " и бот пришлет документ",keyboardBuilder.finalButtons());
+            return botStates.WAITING_OPTION;
+        }
     }
 
     private botStates handleAskDateCourtState(Long chatId,
@@ -166,7 +178,7 @@ public class BotStateHandler {
                                               String text) {
         lawDocMaker.setDateCourt(text);
         messageBuilder.sendMessage(chatId, "Введите время когда назначено" +
-                " Ваше судебное заседание ", cancel());
+                " Ваше судебное заседание ");
         return botStates.ASK_TIME_COURT;
     }
 
@@ -174,7 +186,7 @@ public class BotStateHandler {
                                               LawDocMaker lawDocMaker,
                                               String text) {
         lawDocMaker.setTimeCourt(text);
-        messageBuilder.sendMessage(chatId, "Введите причину для отложения судебного заседания", cancel());
+        messageBuilder.sendMessage(chatId, "Введите причину для отложения судебного заседания");
         return botStates.ASK_REASON_ONE;
     }
 
@@ -183,14 +195,16 @@ public class BotStateHandler {
                                               String text) {
         lawDocMaker.setReason_1(text);
         messageBuilder.sendMessage(chatId, "Мы заполнили Ваше заявление, сейчас произойдет магия \uD83D\uDCAB" +
-                " и бот пришлет документ", cancel());
+                " и бот пришлет документ", keyboardBuilder.finalButtons());
+        return botStates.WAITING_OPTION;
+    }
+    void handleCompleteState(Long chatId,
+                             LawDocMaker lawDocMaker) {
         try {
             lawDocBuilder.generateDocument(lawDocMaker);
             messageBuilder.sendDocument(chatId,lawDocMaker);
-            return botStates.COMPLETE;
         } catch (IOException e) {
-            messageBuilder.sendMessage(chatId, "Произошла ошибка при генерации документа", cancel());
-            return botStates.STATE_START;
+            messageBuilder.sendMessage(chatId, "Произошла ошибка при генерации документа");
         }
     }
 }

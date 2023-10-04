@@ -31,6 +31,15 @@ public class MessageBuilder {
             e.printStackTrace();
         }
     }
+    public void sendMessage(Long chatId, String inputMessage) {
+        SendMessage outputMessage = new SendMessage(chatId, inputMessage);
+        try {
+            bot.execute(outputMessage);
+        } catch (Exception e) {
+            log.info("Exception was thrown in sendMessage method without keyboard");
+            e.printStackTrace();
+        }
+    }
     public void sendDocument(long chatId, LawDocMaker lawDocMaker) {
         String fileName = lawDocMaker.getOption() + ".docx";
         File file = new File(Constants.OUTPUT_PATH+fileName);

@@ -24,15 +24,19 @@ public class KeyboardBuilder {
         return new ReplyKeyboardRemove(true);
     }
 
-    public InlineKeyboardMarkup cancelButton() {
-        InlineKeyboardButton cancelButton = new InlineKeyboardButton(Constants.CANCELLED);
-        cancelButton.callbackData(Constants.CANCELLED);
-        return new InlineKeyboardMarkup(cancelButton);
+    public InlineKeyboardMarkup finalButtons() {
+        InlineKeyboardButton cancelButton = new InlineKeyboardButton(Constants.CANCELLED_TEXT);
+        cancelButton.callbackData(Constants.CANCELLED_TEXT);
+
+        InlineKeyboardButton getDocumentButton = new InlineKeyboardButton(Constants.GET_DOCUMENT);
+        getDocumentButton.callbackData(Constants.GET_DOCUMENT);
+
+        return new InlineKeyboardMarkup(getDocumentButton, cancelButton);
     }
 
     public static ReplyKeyboardMarkup cancel() {
         log.info("Choose keyboard was called");
-        KeyboardButton button1 = new KeyboardButton(Constants.CANCELLED);
+        KeyboardButton button1 = new KeyboardButton(Constants.CANCELLED_TEXT);
         return new ReplyKeyboardMarkup(new KeyboardButton[][]{{button1}})
                 .resizeKeyboard(true)
                 .selective(true)
